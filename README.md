@@ -1,2 +1,2 @@
 # gotorrent
-Distributed system made with pyactor library
+Distributed system made with pyactor library.
