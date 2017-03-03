@@ -1,3 +1,7 @@
+'''
+Main file for go-torrent project
+@author: Joan Boronat & David Flores
+'''
 from pyactor.context import (set_context, create_host, sleep, serve_forever)
 from peer import *
 from tracker import *
