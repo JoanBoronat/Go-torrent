@@ -17,10 +17,12 @@ class PeerTest(unittest.TestCase):
         tracker.init_tracker()
 
         p1 = h.spawn('peer1', Peer)
-        p1.init_peer("hash1")
+        p1.init_peer("torrent1", {1: "Hola", 2: "Adios"})
 
-        sleep(1)
-        p1.get_peers()
+        p2 = h.spawn('peer2', Peer)
+        p2.init_peer("torrent1", None)
+
+        sleep(10)
 
         shutdown()
 
