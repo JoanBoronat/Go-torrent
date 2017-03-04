@@ -8,7 +8,8 @@ install:
     - pip install coveralls
     - pip install codecov
 script:
-    - find ./source -name \*.py
+    - find ./gotorrent -name \*.py
+    - nosetests --with-coverage --cover-erase --cover-package=src -v
 after_success:
     - coveralls
 notifications:
