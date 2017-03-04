@@ -21,13 +21,10 @@ class PeerTest(unittest.TestCase):
         p1.init_peer("hash1")
 
         p2 = h.spawn('peer2', Peer)
-        p2.init_peer("hash2")
+        p2.init_peer("hash1")
 
         p3 = h.spawn('peer3', Peer)
         p3.init_peer("hash1")
-
-        sleep(1)
-        p1.get_peers()
 
         p4 = h.spawn('peer4', Peer)
         p4.init_peer("hash1")
@@ -41,7 +38,7 @@ class PeerTest(unittest.TestCase):
         p7 = h.spawn('peer7', Peer)
         p7.init_peer("hash1")
 
-        sleep(1)
+        sleep(3)
         p1.get_peers()
 
         shutdown()
