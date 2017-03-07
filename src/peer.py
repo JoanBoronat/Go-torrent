@@ -1,7 +1,9 @@
 import random
+import numpy as np
+
 
 class Peer(object):
-    _tell = ['init_peer', 'get_peers', 'announce_me', 'push', 'push_data']
+    _tell = ['init_peer', 'get_peers', 'announce_me', 'push', 'push_data', 'get_data']
     _ask = []
     _ref = ['push_data']
 
@@ -12,14 +14,12 @@ class Peer(object):
         self.chunks = {}
         self.neighbors = []
 
-    def init_peer(self, torrent_hash, data):
+    def init_peer(self, torrent_hash):
         self.tracker = self.host.lookup('tracker')
         self.torrent_hash = torrent_hash
         self.interval = self.host.interval(10, self.proxy, "announce_me")
-        self.interval = self.host.interval(1, self.proxy, "get_peers")
+        self.interval = self.host.interval(2, self.proxy, "get_peers")
         self.interval = self.host.interval(1, self.proxy, "push_data")
-        if data:
-            self.chunks = data
 
     def announce_me(self):
         self.tracker.announce(self.torrent_hash, self.proxy)
@@ -37,3 +37,19 @@ class Peer(object):
             random_chunk = random.choice(self.chunks.keys())
             for neighbor in self.neighbors:
                 neighbor.push(random_chunk, self.chunks[random_chunk])
+
+    def get_data(self):
+        nChunks = 9
+        f = open("../file.txt")
+
+        # Read file
+        l = list(f.read())
+
+        # Split the file into equaly sized chunks.
+        l = list(np.array_split(l, nChunks))
+
+        # Convert the arrays to strings
+        l = map((lambda x: ''.join(x)), l)
+        k = range(len(l))
+        self.chunks = dict(zip(k, l))
+

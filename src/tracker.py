@@ -2,6 +2,7 @@ import random
 class Tracker(object):
     _tell = ['announce', 'update_peers', 'init_tracker']
     _ask = ['get_peers']
+    _ref = ['announce']
 
     def __init__(self):
         self.swarms = {}
@@ -25,8 +26,7 @@ class Tracker(object):
 
     def get_peers(self, torrent_hash, peer_ref):
         tmp = self.swarms[torrent_hash].copy()
-        tmp.pop(peer_ref, None)
         if len(tmp) >= 6:
-            return random.sample(tmp.keys(), 6)
+            return random.sample(tmp, 6)
         else:
-            return tmp.keys()
+            return tmp
