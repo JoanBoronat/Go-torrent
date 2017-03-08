@@ -1,4 +1,6 @@
 import random
+
+
 class Tracker(object):
     _tell = ['announce', 'update_peers', 'init_tracker']
     _ask = ['get_peers']
@@ -12,7 +14,6 @@ class Tracker(object):
         self.interval = self.host.interval(1, self.proxy, "update_peers")
 
     def announce(self, torrent_hash, peer_ref):
-        # print 'A peer with hash: ', torrent_hash, ' has been announced'
         if torrent_hash not in self.swarms:
             self.swarms[torrent_hash] = {}
         self.swarms[torrent_hash][peer_ref] = 10
@@ -24,7 +25,7 @@ class Tracker(object):
                 if self.swarms[swarm][peers] == 0:
                     del self.swarms[swarm][peers]
 
-    def get_peers(self, torrent_hash, peer_ref):
+    def get_peers(self, torrent_hash, sender):
         tmp = self.swarms[torrent_hash].copy()
         if len(tmp) >= 6:
             return random.sample(tmp, 6)

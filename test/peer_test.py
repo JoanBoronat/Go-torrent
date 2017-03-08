@@ -16,13 +16,18 @@ class PeerTest(unittest.TestCase):
         tracker = h.spawn('tracker', Tracker)
         tracker.init_tracker()
 
-        p1 = h.spawn('peer1', Peer)
-        p1.init_peer("torrent1", {1: "Hola", 2: "Adios"})
+        peers = list()
+        sleep(1)
 
-        p2 = h.spawn('peer2', Peer)
-        p2.init_peer("torrent1", None)
+        # Spawn 5 peers
+        for i in range(2):
+            peers.append(h.spawn('peer' + str(i), Peer))
+            sleep(0.5)
+            # Initialize peer
+            peers[i].init_peer("hash1", 9)
 
-        sleep(10)
+        # Make peer0 seed
+        peers[0].load_file()
 
         shutdown()
 

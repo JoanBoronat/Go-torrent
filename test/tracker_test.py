@@ -13,34 +13,23 @@ class PeerTest(unittest.TestCase):
             pass
 
         h = create_host()
-
         tracker = h.spawn('tracker', Tracker)
         tracker.init_tracker()
 
-        p1 = h.spawn('peer1', Peer)
-        p1.init_peer("hash1", None)
+        peers = list()
+        sleep(1)
 
-        p2 = h.spawn('peer2', Peer)
-        p2.init_peer("hash1", None)
+        # Spawn 5 peers
+        for i in range(5):
+            peers.append(h.spawn('peer' + str(i), Peer))
+            sleep(0.5)
+            # Initialize peer
+            peers[i].init_peer("hash1", 9)
 
-        p3 = h.spawn('peer3', Peer)
-        p3.init_peer("hash1", None)
+        # Make peer0 seed
+        peers[0].load_file()
 
-        p4 = h.spawn('peer4', Peer)
-        p4.init_peer("hash1", None)
-
-        p5 = h.spawn('peer5', Peer)
-        p5.init_peer("hash1", None)
-
-        p6 = h.spawn('peer6', Peer)
-        p6.init_peer("hash1", None)
-
-        p7 = h.spawn('peer7', Peer)
-        p7.init_peer("hash1", None)
-
-        sleep(3)
-        p1.get_peers()
-
+        sleep(60)
         shutdown()
 
 
