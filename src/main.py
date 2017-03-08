@@ -10,15 +10,16 @@ if __name__ == '__main__':
     tracker.init_tracker()
 
     peers = list()
-    sleep(1)
+    sleep(2)
 
     # Spawn 5 peers
     for i in range(5):
         peers.append(h.spawn('peer' + str(i), Peer))
-        sleep(0.5)
+        sleep(2)
         # Initialize peer
         peers[i].init_peer("hash1", 9)
 
+    sleep(2)
     # Make peer0 seed
     peers[0].load_file()
 
