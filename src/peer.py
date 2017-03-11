@@ -89,7 +89,7 @@ class Peer(object):
         l = list(np.array_split(l, self.total_lengh))
 
         # Convert the arrays to strings
-        l = map(l.join())
+        l = map(''.join, l)
         k = range(len(l))
 
         self.chunks = dict(zip(k, l))
