@@ -37,14 +37,14 @@ class Tracker(object):
         else:
             return tmp
 
-    def accounting(self, sender, time, percentage):
+    def accounting(self, time, percentage):
         if time not in self.accountingData:
             self.accountingData[time] = 0
         self.accountingData[time] += percentage
         if self.accountingData[time] == 5 and not self.all_recieved:
             self.all_recieved = True
             aux = list()
-            for i, val in enumerate(sorted(self.accountingData.keys())):
+            for val in sorted(self.accountingData.keys()):
                 aux.append(self.accountingData[val] / 5)
             print "All peers received all the data. This are the mean percentages of data that peers have by gossip " \
                   "cycle: "

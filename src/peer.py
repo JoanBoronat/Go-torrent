@@ -89,11 +89,11 @@ class Peer(object):
         l = list(np.array_split(l, self.total_lengh))
 
         # Convert the arrays to strings
-        l = map((lambda x: ''.join(x)), l)
+        l = map(l.join())
         k = range(len(l))
 
         self.chunks = dict(zip(k, l))
         self.missing_chunks = []
 
     def check_data(self):
-        self.tracker.accounting(self.id, int(time.time()), len(self.chunks) / self.total_lengh)
+        self.tracker.accounting(int(time.time()), len(self.chunks) / self.total_lengh)
