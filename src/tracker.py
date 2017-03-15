@@ -1,11 +1,13 @@
 from __future__ import division
+from pyactor.context import interval
+import matplotlib.pyplot as plt
 import random
 
 
 class Tracker(object):
     _tell = ['announce', 'update_peers', 'init_tracker', 'accounting']
     _ask = ['get_peers']
-    _ref = ['announce']
+    _ref = ['announce', 'get_peers']
 
     def __init__(self):
         self.all_recieved = False
@@ -15,7 +17,7 @@ class Tracker(object):
         self.cycle = 0
 
     def init_tracker(self):
-        self.interval = self.host.interval(1, self.proxy, "update_peers")
+        self.interval = interval(self.host, 1, self.proxy, "update_peers")
 
     def announce(self, torrent_hash, peer_ref):
         if torrent_hash not in self.swarms:
@@ -30,11 +32,14 @@ class Tracker(object):
                 if self.swarms[swarm][peers] == 0:
                     del self.swarms[swarm][peers]
 
-    def get_peers(self, torrent_hash):
-        tmp = self.swarms[torrent_hash].copy()
+    def get_peers(self, torrent_hash, sender):
+        tmp = self.swarms[torrent_hash].keys()
+        if sender in tmp:
+            tmp.remove(sender)
         if len(tmp) >= 6:
             return random.sample(tmp, 6)
         else:
+            # print sender, "----", tmp
             return tmp
 
     def accounting(self, time, percentage):
@@ -48,4 +53,10 @@ class Tracker(object):
                 aux.append(self.accountingData[val] / 5)
             print "All peers received all the data. This are the mean percentages of data that peers have by gossip " \
                   "cycle: "
-            print filter(lambda x: x > 0, aux)
+            aux = filter(lambda x: x > 0, aux)
+            print aux
+
+            x = range(len(aux))
+            width = 1 / 1.5
+            plt.bar(x, aux, width, color="blue")
+            plt.savefig('foo.png')
