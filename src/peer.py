@@ -1,4 +1,5 @@
 from __future__ import division
+from pyactor.context import interval
 import random
 import numpy as np
 import time
@@ -24,18 +25,18 @@ class Peer(object):
         self.missing_chunks = list(xrange(data_lenght))
 
         # Announce the peer every 10 seconds and get peers after that
-        self.interval = self.host.interval(10, self.proxy, "announce")
+        self.interval = interval(self.host, 10, self.proxy, "announce")
 
         # Check if we have all the date every second
-        self.interval_check_data = self.host.interval(1, self.proxy, "check_data")
+        self.interval_check_data = interval(self.host, 1, self.proxy, "check_data")
 
-        self.host.interval(2, self.proxy, "get_peers")
+        interval(self.host, 2, self.proxy, "get_peers")
 
         # Push data among neighbors every second
-        self.interval_push_data = self.host.interval(1, self.proxy, "push_loop")
+        self.interval_push_data = interval(self.host, 1, self.proxy, "push_loop")
 
         # Request chunks among neighbors every second
-        self.interval_pull_request = self.host.interval(1, self.proxy, "pull_loop")
+        self.interval_pull_request = interval(self.host, 1, self.proxy, "pull_loop")
 
     # Announce myself to the tracker in a swarm
     def announce(self):
@@ -43,7 +44,7 @@ class Peer(object):
 
     # Get neighbors
     def get_peers(self):
-        self.neighbors = self.tracker.get_peers(self.torrent_hash)
+        self.neighbors = self.tracker.get_peers(self.torrent_hash, self.proxy)
 
     # Method to send the data to another peer
     def push(self, chunk_id, chunk_data):
