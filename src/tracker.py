@@ -54,9 +54,15 @@ class Tracker(object):
             print "All peers received all the data. This are the mean percentages of data that peers have by gossip " \
                   "cycle: "
             aux = filter(lambda x: x > 0, aux)
+            aux = map(lambda x: x * 100, aux)
             print aux
 
             x = range(len(aux))
+            y = range(10, 110, 10)
             width = 1 / 1.5
-            plt.bar(x, aux, width, color="blue")
+            plt.bar(x, aux, width, color="#d8721e")
+            plt.ylabel('Percentage of received data')
+            plt.yticks(y, ["10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%"])
+            plt.xlabel('Gossip cycle')
+            plt.title("Accounting gossip protocol", )
             plt.savefig('foo.png')
