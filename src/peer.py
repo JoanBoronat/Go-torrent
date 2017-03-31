@@ -58,10 +58,7 @@ class Peer(object):
         if self.chunks and self.neighbors:
             random_chunk = random.choice(self.chunks.keys())
             for neighbor in self.neighbors:
-                try:
-                    neighbor.push(random_chunk, self.chunks[random_chunk])
-                except:
-                    pass
+                neighbor.push(random_chunk, self.chunks[random_chunk])
 
     # Asking my neighbors if they have a random missing chunk
     def pull_loop(self):
