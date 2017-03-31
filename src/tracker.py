@@ -39,7 +39,6 @@ class Tracker(object):
         if len(tmp) >= 6:
             return random.sample(tmp, 6)
         else:
-            # print sender, "----", tmp
             return tmp
 
     def accounting(self, time, percentage):
