@@ -2,6 +2,7 @@ import unittest
 from pyactor.context import set_context, create_host, sleep, shutdown
 from src.tracker import *
 from src.peer import *
+from src.assistant import *
 
 
 class PeerTest(unittest.TestCase):
@@ -12,24 +13,34 @@ class PeerTest(unittest.TestCase):
         except:
             pass
 
+        number_peers = 100
+        number_chunks = 9
+
+        # Protocol used (push, pull, push-pull)
+        protocol = "push-pull"
+
         h = create_host()
         tracker = h.spawn('tracker', Tracker)
         tracker.init_tracker()
 
         peers = list()
-        sleep(1)
+        sleep(2)
 
-        # Spawn 5 peers
-        for i in range(5):
+        assistant = h.spawn('assistant', Assistant)
+        assistant.init_assistant(number_peers, number_chunks, protocol)
+
+        # Spawn peers
+        for i in range(number_peers):
+            sleep(0.1)
             peers.append(h.spawn('peer' + str(i), Peer))
-            sleep(0.5)
             # Initialize peer
-            peers[i].init_peer("hash1", 9)
+            peers[i].init_peer("hash1", number_chunks, protocol)
 
+        sleep(2)
         # Make peer0 seed
-        peers[0].load_file()
+        assistant.load_file(peers[0])
 
-        sleep(60)
+        sleep(20)
         shutdown()
 
 
