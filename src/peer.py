@@ -1,25 +1,27 @@
 from __future__ import division
 from pyactor.context import interval
 import random
-import numpy as np
+
 import time
 
 
 class Peer(object):
-    _tell = ['init_peer', 'announce', 'get_peers', 'push', 'push_loop', 'pull', 'pull_loop', 'check_data', 'load_file']
+    _tell = ['init_peer', 'announce', 'get_peers', 'receive_peers', 'push', 'push_loop', 'pull', 'pull_loop', 'check_data', 'set_data']
 
     def __init__(self):
         self.torrent_hash = ''
         self.tracker = ""
         self.chunks = {}
-        self.missing_chunks = None
+        self.missing_chunks = []
         self.neighbors = []
-        self.total_lengh = None
+        self.total_length = None
+        self.assistant = None
 
-    def init_peer(self, torrent_hash, data_lenght):
+    def init_peer(self, torrent_hash, data_lenght, protocol):
         self.tracker = self.host.lookup('tracker')
         self.torrent_hash = torrent_hash
-        self.total_lengh = data_lenght
+        self.total_length = data_lenght
+        self.assistant = self.host.lookup('assistant')
 
         # Get a list of the missing ID's
         self.missing_chunks = list(xrange(data_lenght))
@@ -32,11 +34,13 @@ class Peer(object):
 
         interval(self.host, 2, self.proxy, "get_peers")
 
-        # Push data among neighbors every second
-        self.interval_push_data = interval(self.host, 1, self.proxy, "push_loop")
+        if protocol == "push" or protocol == "push-pull":
+            # Push data among neighbors every second
+            self.interval_push_data = interval(self.host, 1, self.proxy, "push_loop")
 
-        # Request chunks among neighbors every second
-        self.interval_pull_request = interval(self.host, 1, self.proxy, "pull_loop")
+        if protocol == "pull" or protocol == "push-pull":
+            # Request chunks among neighbors every second
+            self.interval_pull_request = interval(self.host, 1, self.proxy, "pull_loop")
 
     # Announce myself to the tracker in a swarm
     def announce(self):
@@ -45,6 +49,9 @@ class Peer(object):
     # Get neighbors
     def get_peers(self):
         self.neighbors = self.tracker.get_peers(self.torrent_hash, self.proxy)
+
+    def receive_peers(self, neighbors):
+        self.neighbors = neighbors
 
     # Method to send the data to another peer
     def push(self, chunk_id, chunk_data):
@@ -68,7 +75,7 @@ class Peer(object):
                 neighbor.pull(random_chunk, self.proxy)
 
         # If I have all the data I can stop asking for chunks
-        if len(self.chunks) == self.total_lengh:
+        if len(self.chunks) == self.total_length:
             # Stop pull_request
             self.interval_pull_request.set()
 
@@ -77,21 +84,9 @@ class Peer(object):
         if chunk_id in self.chunks:
             sender.push(chunk_id, self.chunks[chunk_id])
 
-    def load_file(self):
-        f = open("../file.txt")
-
-        # Read file
-        l = list(f.read())
-
-        # Split the file into equaly sized chunks.
-        l = list(np.array_split(l, self.total_lengh))
-
-        # Convert the arrays to strings
-        l = map(''.join, l)
-        k = range(len(l))
-
-        self.chunks = dict(zip(k, l))
+    def set_data(self, chunks):
+        self.chunks = chunks
         self.missing_chunks = []
 
     def check_data(self):
-        self.tracker.accounting(int(time.time()), len(self.chunks) / self.total_lengh)
+        self.assistant.accounting(int(time.time()), len(self.chunks) / self.total_length)
