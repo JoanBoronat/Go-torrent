@@ -5,7 +5,7 @@ from src.assistant import Assistant
 
 if __name__ == '__main__':
 
-    number_peers = 100
+    number_peers = 5
     number_chunks = 9
 
     # Protocol used (push, pull, push-pull)
@@ -26,7 +26,6 @@ if __name__ == '__main__':
 
     # Spawn peers
     for i in range(number_peers):
-        sleep(0.1)
         peers.append(h.spawn('peer' + str(i), Peer))
         # Initialize peer
         peers[i].init_peer("hash1", number_chunks, protocol)

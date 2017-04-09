@@ -10,10 +10,11 @@ class PeerTest(unittest.TestCase):
 
         try:
             set_context()
+
         except:
             pass
 
-        number_peers = 100
+        number_peers = 5
         number_chunks = 9
 
         # Protocol used (push, pull_data, push-pull_data)

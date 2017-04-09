@@ -1,3 +1,4 @@
 [report]
 omit =
     src/main.py
+    src/assistant.py

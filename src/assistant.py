@@ -62,10 +62,8 @@ class Assistant(object):
             aux = map(lambda x: x * 100, aux)
 
             x = range(len(aux))
-            y = range(0, 110, 10)
             plt.plot(x, aux)
             plt.ylabel('Percentage of data received')
-            # plt.yticks(y, ["0%", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%"])
             plt.xlabel('Gossip cycle')
             plt.title("Accounting of " + self.protocol + " protocol with " + str(self.num_peers) + " peers")
             plt.savefig(self.protocol + '.png')

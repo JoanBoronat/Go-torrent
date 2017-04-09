@@ -14,11 +14,9 @@ class PeerTest(unittest.TestCase):
         except:
             pass
 
-        number_peers = 100
+        number_peers = 5
         number_chunks = 9
-
-        # Protocol used (push, pull_data, push-pull_data)
-        protocol = "push-pull_data"
+        protocol = "push-pull"
 
         h = create_host()
         tracker = h.spawn('tracker', Tracker)
@@ -30,18 +28,13 @@ class PeerTest(unittest.TestCase):
         assistant = h.spawn('assistant', Assistant)
         assistant.init_assistant(number_peers, number_chunks, protocol)
 
-        # Spawn peers
         for i in range(number_peers):
-            sleep(0.1)
             peers.append(h.spawn('peer' + str(i), Peer))
-            # Initialize peer
             peers[i].init_peer("hash1", number_chunks, protocol)
 
         sleep(2)
-        # Make peer0 seed
         assistant.load_file(peers[0])
 
-        sleep(20)
         shutdown()
 
 if __name__ == '__main__':
