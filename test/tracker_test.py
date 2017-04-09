@@ -16,8 +16,8 @@ class PeerTest(unittest.TestCase):
         number_peers = 100
         number_chunks = 9
 
-        # Protocol used (push, pull, push-pull)
-        protocol = "push-pull"
+        # Protocol used (push, pull_data, push-pull_data)
+        protocol = "push-pull_data"
 
         h = create_host()
         tracker = h.spawn('tracker', Tracker)

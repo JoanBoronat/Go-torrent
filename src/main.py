@@ -25,7 +25,6 @@ if __name__ == '__main__':
     print "Assistant initialized"
 
     # Spawn peers
-    print "Initializing peers..."
     for i in range(number_peers):
         sleep(0.1)
         peers.append(h.spawn('peer' + str(i), Peer))
@@ -34,8 +33,10 @@ if __name__ == '__main__':
     print "Peers initialized"
 
     sleep(2)
-    print "Initializing gossip protocol"
+    print "Initializing gossip with " + protocol + " protocol"
+
     # Make peer0 seed
     assistant.load_file(peers[0])
+    assistant.print_data_start()
 
     serve_forever()
