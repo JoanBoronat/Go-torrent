@@ -7,6 +7,7 @@ import time
 class Peer(object):
     _tell = ['init_peer', 'announce', 'get_peers', 'receive_peers', 'push', 'push_data', 'pull_data', 'pull',
              'check_data', 'set_data']
+    _ref = ['receive_peers']
 
     def __init__(self):
         self.torrent_hash = ''
@@ -17,9 +18,9 @@ class Peer(object):
         self.total_length = None
         self.assistant = None
 
-    def init_peer(self, torrent_hash, data_lenght, protocol):
-        self.tracker = self.host.lookup('tracker')
-        self.assistant = self.host.lookup('assistant')
+    def init_peer(self, url_tracker, url_assistant, torrent_hash, data_lenght, protocol):
+        self.tracker = self.host.lookup_url(url_tracker + 'tracker', 'Tracker', 'tracker')
+        self.assistant = self.host.lookup_url(url_assistant + 'assistant', 'Assistant', 'assistant')
         self.torrent_hash = torrent_hash
         self.total_length = data_lenght
 
