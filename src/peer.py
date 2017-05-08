@@ -5,21 +5,21 @@ import time
 
 
 class Peer(object):
-    _tell = ['init_peer', 'announce', 'get_peers', 'receive_peers', 'push', 'push_data', 'pull_data', 'pull',
-             'check_data', 'set_data']
+    _tell = ['init_peer', 'announce', 'get_members', 'receive_peers', 'push', 'push_data', 'pull_data', 'pull',
+             'check_data', 'set_data', 'join']
     _ref = ['receive_peers']
 
     def __init__(self):
         self.torrent_hash = ''
-        self.tracker = ""
+        self.group = ""
         self.chunks = {}
         self.missing_chunks = []
         self.neighbors = []
         self.total_length = None
         self.assistant = None
 
-    def init_peer(self, url_tracker, url_assistant, torrent_hash, data_lenght, protocol):
-        self.tracker = self.host.lookup_url(url_tracker + 'tracker', 'Tracker', 'tracker')
+    def init_peer(self, url_group, url_assistant, torrent_hash, data_lenght, protocol):
+        self.group = self.host.lookup_url(url_group + 'group', 'Group', 'group')
         self.assistant = self.host.lookup_url(url_assistant + 'assistant', 'Assistant', 'assistant')
         self.torrent_hash = torrent_hash
         self.total_length = data_lenght
@@ -27,13 +27,12 @@ class Peer(object):
         # Get a list of the missing ID's
         self.missing_chunks = list(xrange(data_lenght))
 
-        # Announce the peer every 10 seconds
-        self.interval = interval(self.host, 10, self.proxy, "announce")
+        self.join()
 
         # Check the data for accounting
         self.interval_check_data = interval(self.host, 1, self.proxy, "check_data")
 
-        interval(self.host, 2, self.proxy, "get_peers")
+        interval(self.host, 2, self.proxy, "get_members")
 
         if protocol == "push" or protocol == "push-pull":
             # Push data among neighbors every second
@@ -43,13 +42,21 @@ class Peer(object):
             # Request chunks among neighbors every second
             self.interval_pull_request = interval(self.host, 1, self.proxy, "pull")
 
-    # Announce myself to the tracker in a swarm
+    def join(self):
+        self.group.join(self.torrent_hash, self.proxy)
+        # Announce the peer every 10 seconds
+        self.interval = interval(self.host, 10, self.proxy, "announce")
+
+    def leave(self):
+        self.group.leave(self.torrent_hash, self.proxy)
+
+    # Announce myself to the group in a swarm
     def announce(self):
-        self.tracker.announce(self.torrent_hash, self.proxy)
+        self.group.announce(self.torrent_hash, self.proxy)
 
     # Get neighbors (asynchronous call)
-    def get_peers(self):
-        self.neighbors = self.tracker.get_peers(self.torrent_hash, self.proxy)
+    def get_members(self):
+        self.neighbors = self.group.get_members(self.torrent_hash, self.proxy)
 
     # Receive the requested peers
     def receive_peers(self, neighbors):

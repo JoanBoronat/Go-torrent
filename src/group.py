@@ -3,23 +3,29 @@ from pyactor.context import interval
 import random
 
 
-class Tracker(object):
-    _tell = ['announce', 'update_peers', 'init_tracker', 'get_peers']
-    _ref = ['announce', 'get_peers']
+class Group(object):
+    _tell = ['announce', 'update_peers', 'init_group', 'get_members', 'join']
+    _ref = ['join', 'announce', 'get_members']
 
     def __init__(self):
         self.swarms = {}
         self.interval = ''
         self.cycle = 0
 
-    def init_tracker(self):
+    def init_group(self):
         self.interval = interval(self.host, 1, self.proxy, "update_peers")
 
-    # Announce a peer in a swarm
-    def announce(self, torrent_hash, peer_ref):
+    def join(self, torrent_hash, peer_ref):
         if torrent_hash not in self.swarms:
             self.swarms[torrent_hash] = {}
         # Initialize de counter of the peer at 10 sec.
+        self.announce(torrent_hash, peer_ref)
+
+    def leave(self, torrent_hash, peer_ref):
+        del self.swarms[torrent_hash][peer_ref]
+
+    # Announce a peer in a swarm
+    def announce(self, torrent_hash, peer_ref):
         self.swarms[torrent_hash][peer_ref] = 10
 
     # Update the counters of the peers deleting the ones
@@ -33,7 +39,7 @@ class Tracker(object):
                     del self.swarms[swarm][peers]
 
     # Send a list of neighbors to a peer
-    def get_peers(self, torrent_hash, sender):
+    def get_members(self, torrent_hash, sender):
         tmp = self.swarms[torrent_hash].keys()
         if sender in tmp:
             tmp.remove(sender)

@@ -1,6 +1,6 @@
 import unittest
 from pyactor.context import set_context, create_host, sleep, shutdown
-from src.tracker import *
+from src.group import *
 from src.peer import *
 from src.assistant import *
 
@@ -23,8 +23,8 @@ class PeerTest(unittest.TestCase):
         number_chunks = 9
         protocol = "push-pull"
 
-        tracker = self.h.spawn('tracker', Tracker)
-        tracker.init_tracker()
+        tracker = self.h.spawn('tracker', Group)
+        tracker.init_group()
 
         self.peers = list()
         sleep(2)

@@ -10,15 +10,15 @@ if __name__ == '__main__':
     urls = ['http://127.0.0.1:1277/', 'http://127.0.0.1:1277/', 'http://127.0.0.1:1277/']
 
     set_context()
-    h = create_host('http://127.0.0.1:1277/')
+    h = create_host(urls[2])
 
-    host_tracker = h.lookup_url(urls[0], Host)
+    host_group = h.lookup_url(urls[0], Host)
     host_assistant = h.lookup_url(urls[1], Host)
     host_peers = h.lookup_url(urls[2], Host)
 
-    tracker = host_tracker.spawn('tracker', 'tracker/Tracker')
-    tracker.init_tracker()
-    print 'Tracker initialized'
+    group = host_group.spawn('group', 'group/Group')
+    group.init_group()
+    print 'Group initialized'
 
     peers = list()
     sleep(2)
