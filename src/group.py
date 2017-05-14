@@ -4,29 +4,30 @@ import random
 
 
 class Group(object):
-    _tell = ['announce', 'update_peers', 'init_group', 'get_members', 'join']
+    _tell = ['announce', 'update_peers', 'init_group', 'get_members', 'join', 'leave']
     _ref = ['join', 'announce', 'get_members']
 
     def __init__(self):
         self.swarms = {}
         self.interval = ''
         self.cycle = 0
+        self.num_peers = None
 
-    def init_group(self):
+    def init_group(self, num_peers):
         self.interval = interval(self.host, 1, self.proxy, "update_peers")
+        self.num_peers = num_peers
+        print 'Group initialized'
 
-    def join(self, torrent_hash, peer_ref):
-        if torrent_hash not in self.swarms:
-            self.swarms[torrent_hash] = {}
-        # Initialize de counter of the peer at 10 sec.
-        self.announce(torrent_hash, peer_ref)
+    def join(self, group_hash, peer_ref):
+        if group_hash not in self.swarms:
+            self.swarms[group_hash] = {}
 
-    def leave(self, torrent_hash, peer_ref):
-        del self.swarms[torrent_hash][peer_ref]
+    def leave(self, group_hash, peer_ref):
+        del self.swarms[group_hash][peer_ref]
 
     # Announce a peer in a swarm
-    def announce(self, torrent_hash, peer_ref):
-        self.swarms[torrent_hash][peer_ref] = 10
+    def announce(self, group_hash, peer_ref):
+        self.swarms[group_hash][peer_ref] = 10
 
     # Update the counters of the peers deleting the ones
     # that haven't been announced the last 10 sec
@@ -39,12 +40,9 @@ class Group(object):
                     del self.swarms[swarm][peers]
 
     # Send a list of neighbors to a peer
-    def get_members(self, torrent_hash, sender):
-        tmp = self.swarms[torrent_hash].keys()
-        if sender in tmp:
-            tmp.remove(sender)
-
-        if len(tmp) >= 3:
-            sender.receive_peers(random.sample(tmp, 3))
-        else:
+    def get_members(self, group_hash, sender):
+        if self.num_peers == len(self.swarms[group_hash]):
+            tmp = self.swarms[group_hash].keys()
+            if sender in tmp:
+                tmp.remove(sender)
             sender.receive_peers(tmp)

@@ -1,0 +1,5 @@
+peer1	 A D E I B E F I H B G I F D B H F C I I G
+peer0	 A D E I B E F I H B G I F D B H F C I I G
+peer3	 A D E I B E F I H B G I F D B H F C I I G H I F I I E A C G C D H F D A A B D E B H H F F A E B C C G B G B A F G E E G A I F E H G F H A H B G E F B I H G E I D F I I C B B G F B D E F C C H F
+peer2	 A D E I B E F I H B G I F D B H F C I I G H I F I I E A C G C D H F D A A B D E B H H F F A E B C C G B G B A F G E E G A I F E H G F H A H B G E F B I H G E I D F I I C B B G F B D E F C C H F
+peer4	 A D E I B E F I H B G I F D B H F C I I G H I F I I E A C G C D H F D A A B D E B H H F F A E B C C G B G B A F G E E G A I F E H G F H A H B G E F B I H G E I D F I I C B B G F B D E F C C H F
