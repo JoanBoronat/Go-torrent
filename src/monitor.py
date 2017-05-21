@@ -1,4 +1,3 @@
-import csv
 from pyactor.context import interval
 
 
@@ -13,7 +12,7 @@ class Monitor(object):
         print 'Monitor initialized'
 
     def receive_data(self, id, chunks):
-        self.data[id] = reduce(lambda x, y: x + " " + y, chunks.values(), "")
+        self.data[id] = reduce(lambda x, y: x + " " + y, chunks, "")
 
     def print_data(self):
         with open("log.txt", "wb") as outfile:

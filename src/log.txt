@@ -1,5 +1,5 @@
-peer1	 A D E I B E F I H B G I F D B H F C I I G
-peer0	 A D E I B E F I H B G I F D B H F C I I G
-peer3	 A D E I B E F I H B G I F D B H F C I I G H I F I I E A C G C D H F D A A B D E B H H F F A E B C C G B G B A F G E E G A I F E H G F H A H B G E F B I H G E I D F I I C B B G F B D E F C C H F
-peer2	 A D E I B E F I H B G I F D B H F C I I G H I F I I E A C G C D H F D A A B D E B H H F F A E B C C G B G B A F G E E G A I F E H G F H A H B G E F B I H G E I D F I I C B B G F B D E F C C H F
-peer4	 A D E I B E F I H B G I F D B H F C I I G H I F I I E A C G C D H F D A A B D E B H H F F A E B C C G B G B A F G E E G A I F E H G F H A H B G E F B I H G E I D F I I C B B G F B D E F C C H F
+peer1	 G B C F B B G C D D I A I F A H G B D D C I C C C H E E D F F E D I A G C D B G H A A C I E C E C H G H H G F A A F D D B C G A A D E C D C F C C H C G C C A C B H C C C H D F G I H G E I A A H D B F C B H E D F
+peer0	 G B C F B B G C D D I A I F A H G B D D C I C C C H E E D F F E D I A G C D B G H A A C I E C E C H G H H G F A A F D D B C G A A D E C D C F C C H C G C C A C B H C C C H D F G I H G E I A A H D B F C B H
+peer3	 G B C F B B G C D D I A I F A H G B D D C I C C C H E E D F F E D I A G C D B G H A A C I E C E C H G H H G F A A F D D B C G A A D E C D C F C C H C G C C A C B H C C C H D F G I H G E I A A H D B F C B H
+peer2	 G B C F B B G C D D I A I F A H G B D D C I C C C H E E D F F E D I A G C D B G H A A C I E C E C H G H H G F A A F D D B C G A A D E C D C F C C H C G C C A C B H C C C H D F G I H G E I A A H D B F C B H
+peer4	 G B C F B B G C D D I A I F A H G B D D C I C C C H E E D F F E D I A G C D B G H A A C I E C E C H G H H G F A A F D D B C G A A D E C D C F C C H C G C C A C B H C C C H D F G I H G E I A A H D B F C B H

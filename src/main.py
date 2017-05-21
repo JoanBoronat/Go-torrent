@@ -5,19 +5,18 @@ if __name__ == '__main__':
 
     # Configuration
     number_peers = 5
-    urls = ['http://127.0.0.1:1277/', 'http://127.0.0.1:1277/', 'http://127.0.0.1:1277/']
+    url_main = 'http://127.0.0.1:1277/'
+    urls = ['http://127.0.0.1:1276/', 'http://127.0.0.1:1275/']
 
     set_context()
-    h = create_host(urls[2])
+    h = create_host(url_main)
 
-    host_group = h.lookup_url(urls[0], Host)
-    host_monitor = h.lookup_url(urls[1], Host)
-    host_peers = h.lookup_url(urls[2], Host)
+    hosts_peers = map(lambda x: h.lookup_url(x, Host), urls)
 
-    group = host_group.spawn('group', 'group/Group')
+    group = h.spawn('group', 'group/Group')
     group.init_group(number_peers)
 
-    monitor = host_monitor.spawn('monitor', 'monitor/Monitor')
+    monitor = h.spawn('monitor', 'monitor/Monitor')
     monitor.init_monitor()
 
     peers = list()
@@ -25,17 +24,15 @@ if __name__ == '__main__':
 
     # Spawn peers
     for i in range(number_peers):
-        sleep(0.1)
-        peers.append(host_peers.spawn('peer' + str(i), 'peer/Peer'))
+        sleep(1)
+        peers.append(hosts_peers[i % len(hosts_peers)].spawn('peer' + str(i), 'peerLamport/Peer'))
         # Initialize peer
-        peers[i].init_peer('peer' + str(i), urls[0], "hash1", peers[0])
+        peers[i].init_peer('peer' + str(i), url_main, "hash1", peers[0])
         peers[i].join()
 
-    sleep(7)
-    peers[0].sleep(20)
+    sleep(5)
 
+    peers[2].sleep(10)
     peers[1].sleep(20)
-
-    sleep(2)
 
     serve_forever()
