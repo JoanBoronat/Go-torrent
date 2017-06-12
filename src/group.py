@@ -1,6 +1,5 @@
 from __future__ import division
 from pyactor.context import interval
-import random
 
 
 class Group(object):
@@ -18,7 +17,7 @@ class Group(object):
         self.num_peers = num_peers
         print 'Group initialized'
 
-    def join(self, group_hash, peer_ref):
+    def join(self, group_hash):
         if group_hash not in self.swarms:
             self.swarms[group_hash] = {}
 

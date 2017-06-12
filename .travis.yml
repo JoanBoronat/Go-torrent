@@ -9,7 +9,7 @@ install:
     - pip install codecov
     - pip install matplotlib
 script:
-    - find ./src -type f \( -iname "*.py" ! -iname "main_peer.py" \)
+    - find ./src -type f \( -iname "*.py" ! -iname "main.py" "host.py" \)
     - nosetests --with-coverage --cover-erase --cover-package=src -v
 after_success:
     - coveralls
