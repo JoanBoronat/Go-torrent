@@ -1,11 +1,12 @@
 from __future__ import division
-from pyactor.context import interval, sleep
+from pyactor.context import interval, sleep, later
 import random
 
 
 class Peer(object):
     _tell = ['init_peer', 'announce', 'get_members', 'receive_peers', 'receive', 'multicast', 'join', 'leave', 'sleep',
-             'send_data', 'set_sequence', 'start_multicast', 'send_msg', 'vote', 'elections']
+             'send_data', 'set_sequence', 'start_multicast', 'send_msg', 'vote', 'elections', 'election_ack',
+             'start_multicast']
     _ref = ['receive_peers', 'init_peer', 'elections', 'vote']
     _ask = ['get_sequence']
 
@@ -20,7 +21,7 @@ class Peer(object):
         self.sequence = 0
         self.sequencer = None
         self.counter = 0
-        self.votes = {}
+        self.votes = 0
         self.onElections = True
 
     def init_peer(self, id, url_group, group_hash):
@@ -33,7 +34,7 @@ class Peer(object):
     def join(self):
         self.group.join(self.group_hash)
         self.interval = interval(self.host, 10, self.proxy, "announce")  # Keep alive
-        self.interval_members = interval(self.host, 1, self.proxy, "get_members")
+        self.interval_members = interval(self.host, 5, self.proxy, "get_members")
         # If i'm not the sequencer, send data
         self.interval_multicast = interval(self.host, 1, self.proxy, "multicast")
         self.interval_data = interval(self.host, 1, self.proxy, "send_data")  # Monitoring data
@@ -53,7 +54,6 @@ class Peer(object):
     def receive_peers(self, neighbors):
         self.neighbors = neighbors
         self.interval_members.set()  # Stop asking for neighbors
-        sleep(3)
         self.elections()
 
     # Receive the data from another peer
@@ -82,27 +82,34 @@ class Peer(object):
 
     # Elect the new sequencer
     def elections(self):
-        if self.sequencer:
+        if self.sequencer in self.neighbors:
             self.neighbors.remove(self.sequencer)  # Remove the sequencer from neighbors
         aux = self.neighbors[:]  # List of alive neighbors
         aux.append(self.proxy)  # Append myself to the list of candidates
-        aux.sort()  # Sort the list
+        aux = sorted(aux, key=lambda x: str(x).split()[1].split("/")[-1])  # Sort the list
         elected = aux[0]  # The lowest ID wins
-        map(lambda x: x.vote(elected), self.neighbors)  # Sending vote to my neighbors
+        if elected == self.proxy:
+            sleep(2)
+            map(lambda x: x.vote(elected), self.neighbors)  # Sending vote to my neighbors
 
     def vote(self, election):
-        if election in self.votes:
-            self.votes[election] += 1
+        if str(election).split()[1].split("/")[-1] > self.id:
+            self.votes = 0
+            map(lambda x: x.vote(self.proxy), self.neighbors)  # Sending vote to my neighbors
         else:
-            self.votes[election] = 1
-        # If everyone has voted the peer with more votes wins
-        if sum(self.votes.values()) == len(self.neighbors):
-            self.sequencer = max(self.votes, key=self.votes.get)
-            if self.sequencer != self.proxy:
-                self.onElections = False
-            else:
-                print self.id, "I've been elected!"
-            self.votes = {}
+            self.sequencer = election  # Update sequencer
+            self.sequencer.election_ack()  # ACK the sequencer
+
+    # ACK of elections
+    def election_ack(self):
+        self.votes += 1
+        # If everyone has sent the ACK we can restart communications
+        if self.votes == len(self.neighbors):
+            map(lambda x: x.start_multicast(), self.neighbors)
+            print self.id, "I've been elected"
+
+    def start_multicast(self):
+        self.onElections = False
 
     def process_msg(self, m, seq):
         self.chunks.append((m, seq))  # Msg processed
