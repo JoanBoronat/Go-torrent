@@ -5,8 +5,8 @@ if __name__ == '__main__':
 
     # Configuration
     number_peers = 5
-    url_main = 'http://127.0.0.1:1277/'
-    urls = ['http://127.0.0.1:1277/', 'http://127.0.0.1:1277/']
+    url_main = 'http://127.0.0.1:1278/'
+    urls = ['http://127.0.0.1:1276/', 'http://127.0.0.1:1277/']
 
     set_context()
     h = create_host(url_main)
@@ -25,7 +25,7 @@ if __name__ == '__main__':
     # Spawn peers
     for i in range(number_peers):
         sleep(0.1)
-        peers.append(hosts_peers[i % len(hosts_peers)].spawn('peer' + str(i), 'peerLamport/Peer'))
+        peers.append(hosts_peers[i % len(hosts_peers)].spawn('peer' + str(i), 'peer/Peer'))
         # Initialize peer
         peers[i].init_peer('peer' + str(i), url_main, "hash1")
         peers[i].join()

@@ -5,8 +5,8 @@ import random
 
 class Peer(object):
     _tell = ['init_peer', 'announce', 'get_members', 'receive_peers', 'receive', 'multicast', 'join', 'leave', 'sleep',
-             'send_data', 'set_sequence', 'start_multicast', 'send_msg', 'vote']
-    _ref = ['receive_peers', 'init_peer']
+             'send_data', 'set_sequence', 'start_multicast', 'send_msg', 'vote', 'elections']
+    _ref = ['receive_peers', 'init_peer', 'elections', 'vote']
     _ask = ['get_sequence']
 
     def __init__(self):
@@ -86,7 +86,7 @@ class Peer(object):
             self.neighbors.remove(self.sequencer)  # Remove the sequencer from neighbors
         aux = self.neighbors[:]  # List of alive neighbors
         aux.append(self.proxy)  # Append myself to the list of candidates
-        aux.sort(key=lambda x: x.get_id())  # Sort the list
+        aux.sort()  # Sort the list
         elected = aux[0]  # The lowest ID wins
         map(lambda x: x.vote(elected), self.neighbors)  # Sending vote to my neighbors
 
