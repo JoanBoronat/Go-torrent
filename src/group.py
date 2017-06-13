@@ -17,19 +17,21 @@ class Group(object):
         self.num_peers = num_peers
         print 'Group initialized'
 
+    # Join the group
     def join(self, group_hash):
         if group_hash not in self.swarms:
             self.swarms[group_hash] = {}
 
+    # Leave the group
     def leave(self, group_hash, peer_ref):
         del self.swarms[group_hash][peer_ref]
 
-    # Announce a peer in a swarm
+    # Announce a peer (keep alive)
     def announce(self, group_hash, peer_ref):
         self.swarms[group_hash][peer_ref] = 10
 
     # Update the counters of the peers deleting the ones
-    # that haven't been announced the last 10 sec
+    # that haven't been announced for the last 10 sec
     def update_peers(self):
         self.cycle += 1
         for swarm in self.swarms:
@@ -38,10 +40,12 @@ class Group(object):
                 if self.swarms[swarm][peers] == 0:
                     del self.swarms[swarm][peers]
 
-    # Send a list of neighbors to a peer
+    # Send the list of neighbors to a peer
     def get_members(self, group_hash, sender):
+        # Send the list if everyone has joined the group
         if self.num_peers == len(self.swarms[group_hash]):
             tmp = self.swarms[group_hash].keys()
+            # Send only the neighbours
             if sender in tmp:
                 tmp.remove(sender)
             sender.receive_peers(tmp)

@@ -5,7 +5,7 @@ import random
 
 class Peer(object):
     _tell = ['init_peer', 'announce', 'get_members', 'receive_peers', 'receive', 'multicast', 'join', 'leave', 'sleep',
-             'send_data', 'set_sequence', 'start_multicast']
+             'send_data', 'set_sequence', 'start_multicast', 'send_msg', 'vote']
     _ref = ['receive_peers', 'init_peer']
     _ask = ['get_sequence']
 
@@ -18,14 +18,16 @@ class Peer(object):
         self.neighbors = []
         self.msgs = ["A", "B", "C", "D", "E", "F", "G", "H", "I"]
         self.sequence = 0
+        self.sequencer = None
         self.counter = 0
+        self.votes = {}
+        self.onElections = True
 
-    def init_peer(self, id, url_group, group_hash, sequencer):
+    def init_peer(self, id, url_group, group_hash):
         self.id = id
         self.group = self.host.lookup_url(url_group + 'group', 'Group', 'group')
         self.monitor = self.host.lookup_url(url_group + 'monitor', 'Monitor', 'monitor')
         self.group_hash = group_hash
-        self.sequencer = sequencer
         print self.id + " initialized"
 
     def join(self):
@@ -33,8 +35,7 @@ class Peer(object):
         self.interval = interval(self.host, 10, self.proxy, "announce")  # Keep alive
         self.interval_members = interval(self.host, 1, self.proxy, "get_members")
         # If i'm not the sequencer, send data
-        if self.proxy != self.sequencer:
-            self.interval_multicast = interval(self.host, 1, self.proxy, "multicast")
+        self.interval_multicast = interval(self.host, 1, self.proxy, "multicast")
         self.interval_data = interval(self.host, 1, self.proxy, "send_data")  # Monitoring data
 
     def leave(self):
@@ -52,6 +53,8 @@ class Peer(object):
     def receive_peers(self, neighbors):
         self.neighbors = neighbors
         self.interval_members.set()  # Stop asking for neighbors
+        sleep(3)
+        self.elections()
 
     # Receive the data from another peer
     def receive(self, m, seq):
@@ -63,29 +66,43 @@ class Peer(object):
 
     # Push the data I have to a random neighbor
     def multicast(self):
-        if self.neighbors:
-            seq = self.sequencer.get_sequence(future=True)  # Ask for a sequence
-            sleep(0.5)  # Wait for the sequencer to send it
-            if seq.done():
-                try:
-                    seq = seq.result(1)
-                    m = random.choice(self.msgs)
-                    self.receive(m, seq)
-                    map(lambda x: x.receive(m, seq), self.neighbors)  # Sending msg to my neighbors
-                except Exception, e:
-                    print e
-            else:  # If the sequencer did not answer, start elections
-                self.interval_multicast.set()
-                self.neighbors.remove(self.sequencer)  # Remove the sequencer from neighbors
-                aux = self.neighbors[:]  # List of alive neighbors
-                aux.append(self.proxy)  # Append myself to the list of candidates
-                aux.sort(key=lambda x: x.get_id())  # Sort the list
-                self.sequencer = aux[0]  # The lowest ID wins
-                if self.sequencer != self.proxy:  # If I'm not elected start sending data
-                    self.interval_multicast = interval(self.host, 1, self.proxy, "multicast")
-                else:
-                    self.sequence = self.nextSeq
-                    print self.id, "I'm the new sequencer!"
+        if self.neighbors and not self.onElections and self.sequencer:
+            try:
+                seq = self.sequencer.get_sequence(timeout=5)  # Ask for a sequence.
+                self.send_msg(seq)
+            except:
+                self.onElections = True
+                self.elections()  # If the timeout is reached start elections
+
+    def send_msg(self, seq):
+        m = random.choice(self.msgs)
+        self.receive(m, seq)
+        sleep(random.random())  # Force disorder
+        map(lambda x: x.receive(m, seq), self.neighbors)  # Sending msg to my neighbors
+
+    # Elect the new sequencer
+    def elections(self):
+        if self.sequencer:
+            self.neighbors.remove(self.sequencer)  # Remove the sequencer from neighbors
+        aux = self.neighbors[:]  # List of alive neighbors
+        aux.append(self.proxy)  # Append myself to the list of candidates
+        aux.sort(key=lambda x: x.get_id())  # Sort the list
+        elected = aux[0]  # The lowest ID wins
+        map(lambda x: x.vote(elected), self.neighbors)  # Sending vote to my neighbors
+
+    def vote(self, election):
+        if election in self.votes:
+            self.votes[election] += 1
+        else:
+            self.votes[election] = 1
+        # If everyone has voted the peer with more votes wins
+        if sum(self.votes.values()) == len(self.neighbors):
+            self.sequencer = max(self.votes, key=self.votes.get)
+            if self.sequencer != self.proxy:
+                self.onElections = False
+            else:
+                print self.id, "I've been elected!"
+            self.votes = {}
 
     def process_msg(self, m, seq):
         self.chunks.append((m, seq))  # Msg processed
@@ -103,3 +120,6 @@ class Peer(object):
     def send_data(self):
         # Send data to monitor
         self.monitor.receive_data(self.id, self.chunks)
+
+    def sleep(self, n):
+        sleep(n)

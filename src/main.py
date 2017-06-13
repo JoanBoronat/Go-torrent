@@ -27,8 +27,10 @@ if __name__ == '__main__':
         sleep(0.1)
         peers.append(hosts_peers[i % len(hosts_peers)].spawn('peer' + str(i), 'peerLamport/Peer'))
         # Initialize peer
-        peers[i].init_peer('peer' + str(i), url_main, "hash1", peers[0])
+        peers[i].init_peer('peer' + str(i), url_main, "hash1")
         peers[i].join()
 
-    sleep(2)
+    # sleep(10)
+    # peers[0].sleep(20)
+
     serve_forever()

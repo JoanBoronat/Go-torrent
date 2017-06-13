@@ -18,7 +18,7 @@ class Peer(object):
         self.msgs = ["A", "B", "C", "D", "E", "F", "G", "H", "I"]
         self.clock = 0
 
-    def init_peer(self, id, url_group, group_hash, null):
+    def init_peer(self, id, url_group, group_hash):
         self.id = id
         self.group = self.host.lookup_url(url_group + 'group', 'Group', 'group')
         self.monitor = self.host.lookup_url(url_group + 'monitor', 'Monitor', 'monitor')
@@ -58,6 +58,7 @@ class Peer(object):
             self.queue[(ts, processid)] = {"ackCounter": 0, "msg": m}
         if ts > self.clock:
             self.clock = ts  # Updating clock
+        sleep(random.random())  # Force disorder
         map(lambda x: x.receive_ack(ts, processid), self.neighbors)  # ACK the msg to all my neighbors
 
     # Push the data I have to a random neighbor
@@ -91,3 +92,8 @@ class Peer(object):
     def send_data(self):
         # Send data to monitor.
         self.monitor.receive_data(self.id, self.chunks)
+
+    def sleep(self, n):
+        sleep(n)
+
+
